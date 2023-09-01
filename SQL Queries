@@ -1,0 +1,99 @@
+CREATE TABLE practise.Employees(
+	EmployeeID int NOT NULL AUTO_INCREMENT,
+	FullName varchar(255) NOT NULL,
+	DeptID int,
+	Salary int,
+	HireDate date,
+	ManagerID int,
+	PRIMARY KEY(EmployeeID)
+);
+
+
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (1, 'Owens, Kristy', 1, 35000, '2018-01-22' , 3);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (2, 'Adams, Jennifer', 1, 55000, '2017-10-25' , 5);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (3, 'Smith, Brad', 1, 110000, '2015-02-02' , 7);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (4, 'Ford, Julia', 2, 75000, '2019-08-30' , 5);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (5, 'Lee, Tom', 2, 110000, '2018-10-11' , 7);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (6, 'Jones, David', 3, 85000, '2012-03-15' , 5);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (7, 'Miller, Bruce', 1, 100000, '2014-11-08' , NULL);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (9, 'Peters, Joe', 3, 11000, '2020-03-09' , 5);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (10, 'Joe, Alan', 3, 11500, '2020-03-09' , 5);
+
+INSERT practise.Employees (EmployeeID, FullName, DeptID, Salary, HireDate, ManagerID) VALUES (11, 'Clark, Kelly', 2, 11500, '2020-03-09' , 5);
+
+
+
+
+
+Employee with highest Salary
+Select EmployeeID, DeptID, Salary from (select EmployeeID, DeptID, Salary, RANK() OVER (PARTITION BY DEPTID ORDER BY SALARY DESC) as SAL FROM Employees) as EMP where EMP.SAL = 1;
+
+
+
+Employees with Salary less than department average
+select FullName, Emp.DeptID, Salary from Employees Emp INNER JOIN (select AVG(Salary) as AvgSalary, DeptID from Employees GROUP BY DeptID) as Emp2 on Emp.DeptID = Emp2.DeptID and Emp.Salary < Emp2.AvgSalary;
+
+
+Find employees with less than average salary in dept but more than average of ANY other Depts
+select FullName, Emp.DeptID, Salary from Employees Emp INNER JOIN (select AVG(Salary) as AvgSalary, DeptID from Employees GROUP BY DeptID) as Emp2 on Emp.DeptID = Emp2.DeptID and Emp.Salary < Emp2.AvgSalary and Emp.Salary > ANY (select AVG(Salary) from Employees GROUP BY DEPTID);
+
+Find employees with same salary
+SELECT Emp1.EmployeeID, Emp1.Salary from Employees Emp1 INNER JOIN Employees Emp2 on Emp1.Salary = Emp2.Salary and Emp1.EmployeeID <> Emp2.EmployeeID;
+
+
+Find Dept where none of the employees has salary greater than their manager's salary
+select Distinct(DeptID) from Employees where DeptID not in (select Emp.DeptId from Employees Emp inner join Employees Mgr on Emp.ManagerID = Mgr.EmployeeID where Emp.Salary > Mgr.Salary);
+
+
+Find difference between employee salary and average salary of department
+select EmployeeID, Salary, DeptID, Avg(Salary) OVER (PARTITION BY DEPTID) as AvgSalary,Salary - AVG(Salary) OVER (PARTITION BY DEPTID) from Employee
+s;
+
+Find Employees whose salary is in top 2 percentile in department
+Select EmployeeID, Salary from (Select EmployeeID, FullName, DeptID, Salary ,  PERCENT_RANK() OVER (Partition by DeptID Order BY Salary) as Percenti
+le  from Employees) as Emp Where Emp.Percentile >= 0.98;
+
+
+ Find Employees who earn more than every employee in dept no 2
+ select EmployeeID, FullName, Salary from Employees where Salary > ALL (select Salary from Employees where DeptID = 3);
+
+
+ Department names(with employee name) with more than or equal to 2 employees whose salary greater than 90% of respective department average salary
+ select distinct DeptID  from (select deptid, employeeid, sum(case when salary > avg_dept_sal * 0.9 then 1 else 0 end) over (partition by deptid) as
+empcnt from (select e.deptid, e.employeeid, e.salary, avg(salary) over (partition by e.deptid) as avg_dept_sal from Employees e) t1  ) t2  where empcnt  >= 2;
+
+
+
+
+CREATE TABLE Logs(
+	id NOT NULL AUTO_INCREMENT,
+	num varchar(50),
+	PRIMARY KEY(id)
+);
+
+INSERT INTO Logs (num) VALUES ('1');
+
+INSERT INTO Logs (num) VALUES ('1');
+
+INSERT INTO Logs (num) VALUES ('1');
+
+INSERT INTO Logs (num) VALUES ('1');
+
+INSERT INTO Logs (num) VALUES ('2');
+
+INSERT INTO Logs (num) VALUES ('1');
+
+INSERT INTO Logs (num) VALUES ('2');
+
+INSERT INTO Logs (num) VALUES ('2');
+
+
